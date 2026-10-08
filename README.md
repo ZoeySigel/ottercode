@@ -1,12 +1,12 @@
 # OtterCode
 
-<img src="assets/otter.svg" width="112" alt="OtterCode water otter" />
+<img src="assets/otter.svg" width="112" alt="OtterCode 水獭图标" />
 
 个人学习用的终端 AI 编程助手，基于 [Charmbracelet Crush](https://github.com/charmbracelet/crush) 修改。
 
-## Build and run
+## 构建与运行
 
-Requires the Go version specified in `go.mod`.
+需要安装 `go.mod` 中指定版本的 Go。
 
 ```sh
 git clone https://github.com/ZoeySigel/ottercode.git
@@ -15,99 +15,90 @@ go build -o ottercode .
 ./ottercode
 ```
 
-On Windows:
+在 Windows 上运行：
 
 ```powershell
 go build -o ottercode.exe .
 .\ottercode.exe
 ```
 
-Configuration uses `ottercoderc` / `.ottercoderc` or `ottercode.json` / `.ottercode.json`. Environment variables use `OTTERCODE_`. Project state is stored in `.ottercode`, with `ottercode.db` and `logs/ottercode.log`. Existing Crush configuration and data are neither read nor migrated. Run `ottercode dirs` to inspect global locations.
+配置文件使用 `ottercoderc` / `.ottercoderc`，或 `ottercode.json` / `.ottercode.json`。应用专用环境变量使用 `OTTERCODE_` 前缀。项目状态保存在 `.ottercode` 中，数据库和日志分别为 `ottercode.db` 和 `logs/ottercode.log`。程序不会读取或迁移现有的 Crush 配置和数据。运行 `ottercode dirs` 可以查看全局目录位置。
 
-The default theme is `otter-river`; existing built-in and custom themes remain available. Updates refer to this personal repository. No package-manager distribution is currently claimed.
+默认主题为 `otter-river`，同时保留其他内置主题和自定义主题功能。版本更新检查指向本个人仓库。目前没有提供包管理器发行版。
 
-## Features
+## 功能特性
 
-- **Multi-Model:** choose from a wide range of LLMs or add your own via OpenAI- or Anthropic-compatible APIs
-- **Flexible:** switch LLMs mid-session while preserving context
-- **Session-Based:** maintain multiple work sessions and contexts per project
-- **LSP-Enhanced:** OtterCode uses LSPs for additional context, just like you do
-- **Extensible:** add capabilities via MCPs (`http`, `stdio`, and `sse`)
-- **Works Everywhere:** first-class support in every terminal on macOS, Linux, Windows (PowerShell and WSL), Android, FreeBSD, OpenBSD, and NetBSD
-- **Industrial Grade:** built on the Charm ecosystem, powering 25k+ applications, from leading open source projects to business-critical infrastructure
+- **多模型支持：** 从多种大语言模型中选择，也可以通过兼容 OpenAI 或 Anthropic 的 API 添加自己的模型。
+- **灵活切换：** 在会话中切换模型，同时保留上下文。
+- **多会话管理：** 为每个项目维护多个工作会话及其上下文。
+- **LSP 增强：** 使用语言服务器协议（LSP）获取额外的代码上下文，辅助判断和操作。
+- **可扩展：** 通过 MCP 添加功能，支持 `http`、`stdio` 和 `sse` 传输方式。
+- **跨平台：** 支持 macOS、Linux、Windows（PowerShell 和 WSL）、Android、FreeBSD、OpenBSD 和 NetBSD 上的终端。
+- **成熟生态：** 基于 Charm 生态构建；该生态已用于超过 25,000 个应用，覆盖开源项目和业务关键基础设施。
 
-## Getting Started
+## 快速开始
 
-Choose a provider and model in the model picker, then configure its API key or authentication. Existing providers, including [Hyper][hyper] from Charm, remain available. Service subscriptions and accounts belong to their respective providers; OtterCode is a personal learning fork.
+在模型选择器中选择服务商和模型，然后配置 API 密钥或完成身份验证。现有服务商仍可使用，包括 Charm 提供的 [Hyper][hyper]。服务订阅和账号由各服务商提供；OtterCode 是个人学习用的派生项目。
 
-## API Keys
+## API 密钥
 
-You can also use OtterCode with many other providers such as Anthopic, OpenAI,
-Gemini, OpenRouter and so on. Press <kbd>ctrl+l</kbd> to open the model picker,
-choose the provider of your choice, and paste your API key.
+OtterCode 支持 Anthropic、OpenAI、Gemini、OpenRouter 等多种服务商。按 <kbd>ctrl+l</kbd> 打开模型选择器，选择服务商，然后粘贴 API 密钥。
 
-That said, you can also set environment variables for preferred providers:
+也可以通过环境变量配置常用服务商：
 
-| Environment Variable        | Provider                                           |
-| --------------------------- | -------------------------------------------------- |
-| `HYPER_API_KEY`             | [Charm Hyper][hyper]                               |
-| `ANTHROPIC_API_KEY`         | Anthropic                                          |
-| `OPENAI_API_KEY`            | OpenAI                                             |
-| `VERCEL_API_KEY`            | Vercel AI Gateway                                  |
-| `GEMINI_API_KEY`            | Google Gemini                                      |
-| `ZAI_API_KEY`               | Z.ai                                               |
-| `MINIMAX_API_KEY`           | MiniMax                                            |
-| `SYNTHETIC_API_KEY`         | Synthetic                                          |
-| `HF_TOKEN`                  | Hugging Face Inference                             |
-| `CEREBRAS_API_KEY`          | Cerebras                                           |
-| `OPENROUTER_API_KEY`        | OpenRouter                                         |
-| `IONET_API_KEY`             | io.net                                             |
-| `ALIBABA_SINGAPORE_API_KEY` | Alibaba (Singapore)                                |
-| `ALIBABA_US_API_KEY`        | Alibaba (United States)                            |
-| `GROQ_API_KEY`              | Groq                                               |
-| `AVIAN_API_KEY`             | Avian                                              |
-| `OPENCODE_API_KEY`          | OpenCode Zen & Go                                  |
-| `VERTEXAI_PROJECT`          | Google Cloud VertexAI (Gemini)                     |
-| `VERTEXAI_LOCATION`         | Google Cloud VertexAI (Gemini)                     |
-| `AWS_ACCESS_KEY_ID`         | Amazon Bedrock (Claude)                            |
-| `AWS_SECRET_ACCESS_KEY`     | Amazon Bedrock (Claude)                            |
-| `AWS_REGION`                | Amazon Bedrock (Claude)                            |
-| `AWS_PROFILE`               | Amazon Bedrock (Custom Profile)                    |
-| `AWS_BEARER_TOKEN_BEDROCK`  | Amazon Bedrock                                     |
-| `AZURE_OPENAI_API_ENDPOINT` | Azure OpenAI models                                |
-| `AZURE_OPENAI_API_KEY`      | Azure OpenAI models (optional when using Entra ID) |
-| `AZURE_OPENAI_API_VERSION`  | Azure OpenAI models                                |
-| `MOONSHOT_API_KEY`          | Moonshot                                           |
+| 环境变量                    | 服务商                                    |
+| --------------------------- | ----------------------------------------- |
+| `HYPER_API_KEY`             | [Charm Hyper][hyper]                      |
+| `ANTHROPIC_API_KEY`         | Anthropic                                 |
+| `OPENAI_API_KEY`            | OpenAI                                    |
+| `VERCEL_API_KEY`            | Vercel AI Gateway                         |
+| `GEMINI_API_KEY`            | Google Gemini                             |
+| `ZAI_API_KEY`               | Z.ai                                      |
+| `MINIMAX_API_KEY`           | MiniMax                                   |
+| `SYNTHETIC_API_KEY`         | Synthetic                                 |
+| `HF_TOKEN`                  | Hugging Face 推理服务                     |
+| `CEREBRAS_API_KEY`          | Cerebras                                  |
+| `OPENROUTER_API_KEY`        | OpenRouter                                |
+| `IONET_API_KEY`             | io.net                                    |
+| `ALIBABA_SINGAPORE_API_KEY` | 阿里云（新加坡）                          |
+| `ALIBABA_US_API_KEY`        | 阿里云（美国）                            |
+| `GROQ_API_KEY`              | Groq                                      |
+| `AVIAN_API_KEY`             | Avian                                     |
+| `OPENCODE_API_KEY`          | OpenCode Zen & Go                         |
+| `VERTEXAI_PROJECT`          | Google Cloud VertexAI (Gemini)            |
+| `VERTEXAI_LOCATION`         | Google Cloud VertexAI (Gemini)            |
+| `AWS_ACCESS_KEY_ID`         | Amazon Bedrock (Claude)                   |
+| `AWS_SECRET_ACCESS_KEY`     | Amazon Bedrock (Claude)                   |
+| `AWS_REGION`                | Amazon Bedrock (Claude)                   |
+| `AWS_PROFILE`               | Amazon Bedrock（自定义配置档）            |
+| `AWS_BEARER_TOKEN_BEDROCK`  | Amazon Bedrock                            |
+| `AZURE_OPENAI_API_ENDPOINT` | Azure OpenAI 模型                         |
+| `AZURE_OPENAI_API_KEY`      | Azure OpenAI 模型（使用 Entra ID 时可选） |
+| `AZURE_OPENAI_API_VERSION`  | Azure OpenAI 模型                         |
+| `MOONSHOT_API_KEY`          | Moonshot                                  |
 
 [hyper]: https://hyper.charm.land
 
-Also note that OtterCode can support nearly any provider, including
-[Local Models](#local-models). For more info see
-[Custom Providers](#custom-providers) below.
+OtterCode 还支持几乎所有其他服务商，包括[本地模型](#本地模型)。详情见下文的[自定义服务商](#自定义服务商)。
 
-### By the Way
+### 服务商与模型列表
 
-Is there a provider you’d like to see in OtterCode? Is there an existing model that needs an update?
+希望 OtterCode 支持新的服务商，或者发现某个模型的信息需要更新？
 
-OtterCode’s default model listing is managed in [Catwalk](https://github.com/charmbracelet/catwalk), a community-supported, open source repository of OtterCode-compatible models, and you’re welcome to contribute.
+OtterCode 的默认模型列表由 [Catwalk](https://github.com/charmbracelet/catwalk) 管理。这是一个由社区维护的开源模型目录，欢迎参与贡献。
 
-<a href="https://github.com/charmbracelet/catwalk"><img width="174" height="174" alt="Catwalk Badge" src="https://github.com/user-attachments/assets/95b49515-fe82-4409-b10d-5beb0873787d" /></a>
+<a href="https://github.com/charmbracelet/catwalk"><img width="174" height="174" alt="Catwalk 标识" src="https://github.com/user-attachments/assets/95b49515-fe82-4409-b10d-5beb0873787d" /></a>
 
-## Configuration
+## 配置
 
 > [!TIP]
-> OtterCode ships with a builtin skill for configuring itself. Most of the time
-> you can just tell what you want it to configure and it will get the job done.
+> OtterCode 内置了用于配置自身的技能。大多数情况下，你只需要告诉它想配置什么，它就能帮助完成。
 
-OtterCode runs great with no configuration. That said, if you do need or want to
-customize OtterCode, you can, with a `ottercoderc`.
+OtterCode 无需额外配置即可运行。如果需要自定义行为，可以使用 `ottercoderc`。
 
-A `ottercoderc` is just Bash with some OtterCode-specific builtins. It’s a lot like
-a `.bashrc`, just for your OtterCode. Because OtterCode has a native, built-in Bash
-interpreter, Bash-based config works identically across all platforms, including
-Windows.
+`ottercoderc` 是带有 OtterCode 专用内置命令的 Bash 脚本，类似于专供 OtterCode 使用的 `.bashrc`。由于程序内置了原生 Bash 解释器，这种配置方式在所有平台上行为一致，包括 Windows。
 
-For example:
+例如：
 
 ```bash
 # Add Ollama.
@@ -131,34 +122,27 @@ mcp add github \
   --header Authorization "Bearer $(op read 'op://my-secret-key')"
 ```
 
-Configuration can be added either local to the project itself, or globally,
-with the following priority:
+配置既可以放在项目中，也可以设置为全局配置，优先级如下：
 
-| Priority | Unix-like                         | Windows                                       |
-| -------- | --------------------------------- | --------------------------------------------- |
-| 1        | `./.ottercoderc`                  | `.\.ottercoderc`                              |
-| 2        | `./ottercoderc`                   | `.\ottercoderc`                               |
-| 3        | `~/.config/ottercode/ottercoderc` | `%USERPROFILE%\.config\ottercode\ottercoderc` |
+| 优先级 | 类 Unix 系统                      | Windows                                       |
+| ------ | --------------------------------- | --------------------------------------------- |
+| 1      | `./.ottercoderc`                  | `.\.ottercoderc`                              |
+| 2      | `./ottercoderc`                   | `.\ottercoderc`                               |
+| 3      | `~/.config/ottercode/ottercoderc` | `%USERPROFILE%\.config\ottercode\ottercoderc` |
 
-(OtterCode respects the [XDG Base Directory Specification][xdg], so your paths
-may differ depending on your `XDG_CONFIG_HOME` value. Data directories such as
-`~/.local/share/ottercode` and `%LOCALAPPDATA%\ottercode` contain JSON state only; OtterCode
-does not execute a `ottercoderc` from them.)
+OtterCode 遵循 [XDG 基础目录规范][xdg]，因此实际路径可能随 `XDG_CONFIG_HOME` 的值而变化。`~/.local/share/ottercode` 和 `%LOCALAPPDATA%\ottercode` 等数据目录只保存 JSON 状态；程序不会执行这些目录中的 `ottercoderc`。
 
 [xdg]: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 
-What about the old JSON format? It’s still supported, but it should be
-considered deprecated. See: [the config docs](./docs/config/) for details.
+旧的 JSON 配置格式仍然受支持，但已被标记为弃用。详情见[配置文档](./docs/config/)。
 
 > [!TIP]
-> You can override the user and data config locations by setting:
+> 可以通过以下环境变量覆盖用户配置目录和数据配置目录的位置：
 >
 > - `OTTERCODE_GLOBAL_CONFIG`
 > - `OTTERCODE_GLOBAL_DATA`
 
-As an additional note, OtterCode also stores ephemeral data, such as application
-state, in one additional location. This is state and should not be edited by
-hand, nor should it be considered configuration.
+此外，OtterCode 会在下面的位置保存应用状态等临时数据。这些内容属于程序状态，不应手动修改，也不应当作用户配置。
 
 ```bash
 # Unix
@@ -168,19 +152,13 @@ $HOME/.local/share/ottercode/ottercode.json
 %LOCALAPPDATA%\ottercode\ottercode.json
 ```
 
-#### A note on security
+#### 配置安全说明
 
-Both `ottercoderc` and `ottercode.json` are trusted code; `ottercoderc` runs in a full
-shell, and any `$(...)` in `ottercode.json` runs at load time. Don't launch OtterCode
-in a directory whose config you haven't reviewed, and don't randomly `source`
-files from the internet into your config.
+`ottercoderc` 和 `ottercode.json` 都应视为可信代码：`ottercoderc` 在完整的 shell 环境中执行，`ottercode.json` 中的 `$(...)` 也会在加载时执行。不要在未检查配置的目录中启动 OtterCode，也不要随意在配置中 `source` 来自互联网的文件。
 
-### Environment Variables
+### 环境变量
 
-The top-level `env` field sets environment variables at startup, before
-providers are configured. This is useful for variables that affect provider
-authentication (e.g. the AWS SDK credential chain) without wrapping the
-`ottercode` command in a shell script or exporting them in your shell profile:
+顶层 `env` 字段会在程序启动、配置服务商之前设置环境变量。这适用于影响服务商身份验证的变量，例如 AWS SDK 凭据链使用的变量，无需额外编写包装 `ottercode` 命令的 shell 脚本，也无需在 shell 配置中导出它们：
 
 ```json
 {
@@ -191,28 +169,21 @@ authentication (e.g. the AWS SDK credential chain) without wrapping the
 }
 ```
 
-Values support the same `$VAR` and `$(command)` expansion as other config
-fields, so you can reference existing environment variables or shell out for
-a value.
+这些值支持与其他配置字段相同的 `$VAR` 和 `$(command)` 展开方式，因此可以引用已有环境变量，也可以执行 shell 命令获取值。
 
-### Themes
+### 主题
 
-OtterCode ships with built-in color themes.
+OtterCode 提供内置配色主题。
 
-#### Switching Themes
+#### 切换主题
 
-Open the command palette with `ctrl+p`, select **Themes**, and browse the
-list. The UI previews each theme as you navigate, and pressing `enter`
-confirms the selection. Press `esc` to cancel and revert.
+按 `ctrl+p` 打开命令面板，选择 **Themes（主题）**，然后浏览列表。移动选中项时，界面会实时预览对应主题。按 `enter` 确认，按 `esc` 取消并恢复原主题。
 
-#### Editing Themes
+#### 编辑主题
 
-Open **Themes**, highlight the theme to customize, and press `ctrl+e`.
-Changes preview live as you type. Press `enter` or `ctrl+s` to save, or `esc`
-to cancel and revert. User themes are stored globally in the OtterCode config
-directory under `themes/`.
+打开 **Themes（主题）**，选中要自定义的主题，然后按 `ctrl+e`。输入时会实时预览修改效果。按 `enter` 或 `ctrl+s` 保存，按 `esc` 取消并恢复。用户主题全局保存在 OtterCode 配置目录下的 `themes/` 中。
 
-You can also select a theme directly in your config with `active_theme`:
+也可以通过配置中的 `active_theme` 直接选择主题：
 
 ```json
 {
@@ -225,8 +196,7 @@ You can also select a theme directly in your config with `active_theme`:
 }
 ```
 
-Custom theme palettes are stored as JSON files in the global theme directory.
-For example, `~/.config/ottercode/themes/my-theme.json`:
+自定义主题配色以 JSON 文件形式保存在全局主题目录。例如，`~/.config/ottercode/themes/my-theme.json`：
 
 ```json
 {
@@ -236,20 +206,19 @@ For example, `~/.config/ottercode/themes/my-theme.json`:
 }
 ```
 
-Select it by setting `active_theme` to `my-theme` or from the **Themes**
-dialog.
+将 `active_theme` 设置为 `my-theme`，或在 **Themes（主题）** 对话框中选择它即可启用。
 
-#### Built-In Themes
+#### 内置主题
 
-| Theme             | Name                          |
-| ----------------- | ----------------------------- |
-| Charmtone Pantera | `charmtone-panther` (default) |
-| Gruvbox Dark      | `gruvbox-dark`                |
+| 主题                | 配置名称            |
+| ------------------- | ------------------- |
+| Otter River（默认） | `otter-river`       |
+| Charmtone Pantera   | `charmtone-panther` |
+| Gruvbox Dark        | `gruvbox-dark`      |
 
-### LSPs
+### LSP 服务
 
-OtterCode can use LSPs for additional context to help inform its decisions, just
-like you would. LSPs can be added manually like so:
+OtterCode 可以通过 LSP 获取额外的代码上下文，帮助做出判断。可以手动添加 LSP 服务：
 
 ```bash
 # ottercoderc
@@ -259,11 +228,9 @@ lsp add typescript --command "typescript-language-server" --args --stdio
 lsp add nix --command "nil"
 ```
 
-### MCPs
+### MCP 服务
 
-OtterCode also supports Model Context Protocol (MCP) servers through three transport
-types: `stdio` for command-line servers, `http` for HTTP endpoints, and `sse`
-for Server-Sent Events.
+OtterCode 支持模型上下文协议（Model Context Protocol，MCP）服务，并提供三种传输方式：用于命令行服务的 `stdio`、用于 HTTP 端点的 `http`，以及用于服务器发送事件（Server-Sent Events）的 `sse`。
 
 ```bash
 # ottercoderc
@@ -282,11 +249,9 @@ mcp add streaming-service --type sse --url "https://example.com/mcp/sse" \
   --timeout 10 --header API-Key "$API_KEY"
 ```
 
-#### MCP OAuth
+#### MCP OAuth 身份验证
 
-HTTP and SSE MCP servers that require OAuth can use OtterCode's built-in
-authorization-code flow instead of a static `Authorization` header. Set
-`"oauth": true` to enable it:
+需要 OAuth 的 HTTP 和 SSE MCP 服务可以使用 OtterCode 内置的授权码流程，替代静态 `Authorization` 请求头。设置 `"oauth": true` 即可启用：
 
 ```json
 {
@@ -300,11 +265,9 @@ authorization-code flow instead of a static `Authorization` header. Set
 }
 ```
 
-##### Pre-registered clients
+##### 预注册客户端
 
-Some servers (GitHub, Slack) don't support dynamic client registration.
-For those, register an OAuth app with the provider and supply the
-credentials directly. All values support shell expansion:
+部分服务，例如 GitHub 和 Slack，不支持动态客户端注册。对于这类服务，需要先在服务商处注册 OAuth 应用，再直接提供凭据。所有配置值都支持 shell 展开：
 
 ```json
 {
@@ -321,79 +284,41 @@ credentials directly. All values support shell expansion:
 }
 ```
 
-When `oauth_client_id` is set, OtterCode skips dynamic client registration
-and authenticates as the specified client. When omitted, OtterCode attempts
-dynamic registration automatically (works with Linear, Notion, and other
-servers that support RFC 7591).
+设置 `oauth_client_id` 后，OtterCode 会跳过动态客户端注册，并以指定客户端身份进行验证。未设置时，程序会自动尝试动态注册，适用于 Linear、Notion 以及其他支持 RFC 7591 的服务。
 
-#### Sessionless servers
+#### 无会话服务
 
-Some HTTP MCP servers are sessionless — they never issue a
-`Mcp-Session-Id` and reject the `subscriptions/listen` stream OtterCode opens
-for list-changed notifications, which would otherwise break the
-connection. OtterCode auto-detects known sessionless servers (GitHub MCP,
-`api.githubcopilot.com/mcp`), so those need no extra configuration.
+部分 HTTP MCP 服务不维护会话：它们不会返回 `Mcp-Session-Id`，也会拒绝 OtterCode 为接收列表变更通知而打开的 `subscriptions/listen` 流，进而导致连接失败。OtterCode 会自动识别已知的无会话服务，包括 GitHub MCP 和 `api.githubcopilot.com/mcp`，这些服务无需额外配置。
 
-For other sessionless servers, mark them explicitly with
-`"sessionless": true` (or `--sessionless true` in `ottercoderc`); set it to
-`false` to force the default behavior for an auto-detected URL. The
-tradeoff is that a sessionless server won't push live
-tool/prompt/resource list-changed notifications.
+对于其他无会话服务，可以显式设置 `"sessionless": true`，或在 `ottercoderc` 中设置 `--sessionless true`。对于自动识别的 URL，设置为 `false` 可以强制使用默认会话行为。无会话模式的代价是无法接收工具、提示词和资源列表变更的实时推送通知。
 
-### Hooks
+### 钩子
 
-OtterCode has preliminary support for hooks. For details, see
-[the hook guide](./docs/hooks/).
+OtterCode 初步支持钩子功能。详情见[钩子指南](./docs/hooks/)。
 
-### Sharing a workspace across clients
+### 多客户端共享工作区
 
-When OtterCode is run against a shared backend (for example two TUIs talking to
-the same `ottercode serve`), clients are grouped into **workspaces** keyed by
-their resolved `--cwd`. Two clients with the same `--cwd` join the same
-underlying workspace, so they share the session list, message history,
-permission queue, LSP, and MCP state.
+当 OtterCode 连接共享后端运行时，例如两个 TUI 客户端连接同一个 `ottercode serve`，客户端会按解析后的 `--cwd` 分组为**工作区**。具有相同 `--cwd` 的客户端会加入同一个底层工作区，共享会话列表、消息历史、权限队列、LSP 和 MCP 状态。
 
-Joining is implicit: pointing a second client at the same working directory
-attaches it to the existing workspace. Each new invocation, however, starts
-in its own fresh session by default. To pick up the conversation another
-client already has open, use the session manager (the session picker) and
-select it. Sessions surface two signals there:
+加入工作区无需额外操作：第二个客户端只需指定同一个工作目录，即可连接现有工作区。不过，每次启动默认都会创建各自的新会话。若要继续另一个客户端已经打开的对话，可以在会话管理器（会话选择器）中选中该会话。列表中会显示两个状态：
 
-- `IsBusy` is set while an agent turn is in flight for that session.
-- `AttachedClients` reports how many clients are currently viewing it.
+- `IsBusy`：该会话中的智能体正在处理一轮任务时为真。
+- `AttachedClients`：当前正在查看该会话的客户端数量。
 
-A non-zero `AttachedClients` (often combined with `IsBusy`) is the cue that a
-session is "in progress" on another client and joining it will mirror that
-view live.
+`AttachedClients` 非零时，通常结合 `IsBusy` 可以判断该会话正在另一个客户端中进行。加入后会实时显示同一会话的内容。
 
-The first client to create a workspace fixes its process-wide flags. In
-particular, `--yolo` and `--debug` follow a **first-wins** rule: later
-clients that arrive at the same `--cwd` with different values for those
-flags do not change the running workspace. A debug log line is emitted
-recording the mismatch, and the workspace keeps the flags it was created
-with.
+第一个创建工作区的客户端会确定进程级参数。特别是 `--yolo` 和 `--debug` 遵循**先到先定**规则：后续客户端即使以不同的参数值连接相同的 `--cwd`，也不会改变正在运行的工作区。程序会在调试日志中记录参数不一致的情况，工作区则继续使用创建时的参数。
 
-A workspace lives as long as at least one client has an SSE event stream
-open against it. When the last stream disconnects, the workspace is torn
-down. There is a short grace window right after `POST /v1/workspaces` so a
-client that has created the workspace but not yet opened its event stream
-does not get reaped before it can attach.
+只要至少有一个客户端保持与工作区的 SSE 事件流连接，工作区就会继续存在。最后一个事件流断开后，工作区会被销毁。在 `POST /v1/workspaces` 调用后，程序会保留一个短暂的宽限期，避免刚创建工作区、尚未打开事件流的客户端在连接前被清理。
 
-### Global context files
+### 全局上下文文件
 
-OtterCode automatically includes two files for cross-project instructions. Think of
-these are personal additions to the system prompt.
+OtterCode 会自动加载两个文件，用于提供跨项目的指令。可以将它们视为系统提示词的个人补充：
 
-- `~/.config/ottercode/OTTERCODE.md`: OtterCode-specific rules that would confuse other
-  agentic coding tools. If you only use OtterCode, this is the only one you need to
-  edit.
-- `~/.config/AGENTS.md`: generic instructions that other coding tools might
-  read. Avoid referring to OtterCode-specific features or workflows here. You
-  probably only care about this if you use multiple agentic coding tools and
-  want to share instructions between them.
+- `~/.config/ottercode/OTTERCODE.md`：保存 OtterCode 专用规则，避免其他编程智能体误读。如果只使用 OtterCode，通常只需编辑这个文件。
+- `~/.config/AGENTS.md`：保存其他编程工具也可能读取的通用指令。避免在这里引用 OtterCode 专用功能或工作流程。如果同时使用多个编程智能体，并希望共享指令，可以使用这个文件。
 
-You can customize these paths with `option global-context-path`. Repeat the
-command to add multiple paths:
+可以通过 `option global-context-path` 自定义路径。重复执行该命令可以添加多个路径：
 
 ```bash
 # Load a single markdown file.
@@ -403,85 +328,72 @@ option global-context-path "~/path/to/custom/context/file.md"
 option global-context-path "/full/path/to/folder/of/files/"
 ```
 
-### Ignoring Files
+### 忽略文件
 
-OtterCode respects `.gitignore` files by default, but you can also create a
-`.ottercodeignore` file to specify additional files and directories that OtterCode
-should ignore. This is useful for excluding files that you want in version
-control but don't want OtterCode to consider when providing context.
+OtterCode 默认遵循 `.gitignore`，也可以通过 `.ottercodeignore` 指定额外需要忽略的文件和目录。这适用于希望保留在版本控制中，但不希望 OtterCode 在提供上下文时读取的文件。
 
-The `.ottercodeignore` file uses the same syntax as `.gitignore` and can be placed
-in the root of your project or in subdirectories.
+`.ottercodeignore` 的语法与 `.gitignore` 相同，可以放在项目根目录或子目录中。
 
-### Allowing Tools
+### 允许工具调用
 
-By default, OtterCode will ask you for permission before running tool calls. If
-you'd like, you can allow tools to be executed without prompting you for
-permissions. Use this with care.
+默认情况下，OtterCode 在运行工具调用前会请求授权。可以将部分工具设为无需提示即可执行，使用时请谨慎。
 
 ```bash
 permissions allow view ls grep edit mcp_context7_get-library-doc
 ```
 
-### Disabling Built-In Tools
+### 禁用内置工具
 
-You can also deny tools, hiding then from the agent entirely:
+也可以禁止某些工具，使它们完全不出现在智能体可用的工具列表中：
 
 ```bash
 permissions deny bash sourcegraph
 ```
 
-To disable tools from MCP servers, see the [MCP config section](#mcps).
+若要禁用 MCP 服务中的工具，请参阅 [MCP 配置部分](#mcp-服务)。
 
-### You only live once
+### 跳过权限提示
 
-You can also skip all permission prompts completely by running OtterCode with the
-`--yolo` flag. Be very, very careful with this feature.
+使用 `--yolo` 参数运行 OtterCode，可以完全跳过所有权限提示。请谨慎使用此功能。
 
-### Disabling Skills
+### 禁用技能
 
-You can prevent OtterCode from using certain skills entirely. Disabled skills are
-hidden from the agent, including builtin skills and skills discovered from
-disk.
+可以完全禁止 OtterCode 使用指定技能。被禁用的技能不会出现在智能体的可用技能列表中，包括内置技能和从磁盘发现的技能。
 
 ```bash
 option disable-skill ottercode-config
 ```
 
-### Agent Skills
+### 智能体技能
 
-OtterCode supports the [Agent Skills](https://agentskills.io) open standard for
-extending agent capabilities with reusable skill packages. Skills are folders
-containing a `SKILL.md` file with instructions that OtterCode can discover and
-activate on demand.
+OtterCode 支持 [Agent Skills](https://agentskills.io) 开放标准，可以通过可复用的技能包扩展智能体能力。技能是包含 `SKILL.md` 指令文件的文件夹，OtterCode 可以发现这些技能，并按需启用。
 
-The global paths we looks for skills are:
+程序会在以下全局路径中查找技能：
 
 - `$OTTERCODE_SKILLS_DIR`
-- `$XDG_CONFIG_HOME/agents/skills` or `~/.config/agents/skills/`
-- `$XDG_CONFIG_HOME/ottercode/skills` or `~/.config/ottercode/skills/`
+- `$XDG_CONFIG_HOME/agents/skills` 或 `~/.config/agents/skills/`
+- `$XDG_CONFIG_HOME/ottercode/skills` 或 `~/.config/ottercode/skills/`
 - `~/.agents/skills/`
 - `~/.claude/skills/`
-- On Windows, we _also_ look at
-  - `%LOCALAPPDATA%\agents\skills\` or `%USERPROFILE%\AppData\Local\agents\skills\`
-  - `%LOCALAPPDATA%\ottercode\skills\` or `%USERPROFILE%\AppData\Local\ottercode\skills\`
-- Additional paths configured via `options.skills_paths`
+- 在 Windows 上，还会查找：
+  - `%LOCALAPPDATA%\agents\skills\` 或 `%USERPROFILE%\AppData\Local\agents\skills\`
+  - `%LOCALAPPDATA%\ottercode\skills\` 或 `%USERPROFILE%\AppData\Local\ottercode\skills\`
+- `options.skills_paths` 中配置的其他路径。
 
-On top of that, we _also_ load skills in your project from the following
-relative paths:
+此外，还会从项目中的以下相对路径加载技能：
 
 - `.agents/skills`
 - `.ottercode/skills`
 - `.claude/skills`
 - `.cursor/skills`
 
-Or load directories of skills specifically in your config:
+也可以在配置中显式指定技能目录：
 
 ```bash
 option skill-path "$HOME/squid-skills" "./other-skills"
 ```
 
-You can get started with example skills from [anthropics/skills](https://github.com/anthropics/skills):
+可以从 [anthropics/skills](https://github.com/anthropics/skills) 获取示例技能：
 
 ```bash
 # Unix
@@ -499,11 +411,9 @@ git clone https://github.com/anthropics/skills.git _temp
 mv _temp/skills/* . ; rm -r -force _temp
 ```
 
-#### User-Invocable Skills
+#### 用户可调用的技能
 
-Skills can be made invocable as commands from the commands palette
-(<kbd>ctrl+p</kbd>). Add `user-invocable: true` to the skill's YAML
-frontmatter:
+技能可以作为命令出现在命令面板（<kbd>ctrl+p</kbd>）中。在技能的 YAML 前置元数据中添加 `user-invocable: true` 即可：
 
 ```yaml
 ---
@@ -513,14 +423,14 @@ user-invocable: true
 ---
 ```
 
-User-invocable skills appear in the commands palette with a `user:` or `project:` prefix:
+用户可调用的技能会在命令面板中带有 `user:` 或 `project:` 前缀：
 
-- Skills from global directories show as `user:skill-name`
-- Skills from project directories show as `project:skill-name`
+- 全局目录中的技能显示为 `user:skill-name`。
+- 项目目录中的技能显示为 `project:skill-name`。
 
-When invoked, the skill's instructions are loaded into the conversation context.
+调用技能时，其指令会被加载到当前对话上下文中。
 
-To prevent the model from auto-triggering a skill (while still allowing user invocation), add `disable-model-invocation: true`:
+如果希望禁止模型自动触发某个技能，但仍允许用户手动调用，可以添加 `disable-model-invocation: true`：
 
 ```yaml
 ---
@@ -531,73 +441,58 @@ disable-model-invocation: true
 ---
 ```
 
-Skills with `disable-model-invocation` won't appear in the model's available skills list but can still be invoked manually by users.
+设置了 `disable-model-invocation` 的技能不会出现在模型的可用技能列表中，但仍可由用户手动调用。
 
-### Desktop notifications
+### 桌面通知
 
-OtterCode sends desktop notifications when a tool call requires permission and when
-the agent finishes its turn. They're only sent when the terminal window isn't
-focused _and_ your terminal supports reporting the focus state.
+工具调用需要授权或智能体完成一轮任务时，OtterCode 会发送桌面通知。只有终端窗口未获得焦点，并且终端支持报告焦点状态时，才会发送通知。
 
 ```bash
 # Choose auto, native, osc, bell, or disabled.
 option notifications disabled
 ```
 
-`auto` uses native notifications locally and OSC notifications over SSH when
-supported.
+`auto` 模式在本地使用原生通知，通过 SSH 运行时则在终端支持的情况下使用 OSC 通知。
 
-### Initialization
+### 项目初始化
 
-When you initialize a project, OtterCode analyzes your codebase and creates
-a context file that helps it work more effectively in future sessions. By
-default, this file is named `AGENTS.md`, but you can customize the name and
-location with the `initialize-as` option:
+初始化项目时，OtterCode 会分析代码库并创建上下文文件，帮助它在后续会话中更有效地工作。默认文件名为 `AGENTS.md`，也可以通过 `initialize-as` 自定义名称和位置：
 
 ```bash
 # ottercoderc
 option initialize-as AGENTS.md
 ```
 
-This is useful if you prefer a different naming convention or want to place the
-file in a specific directory (e.g., `OTTERCODE.md` or `docs/LLMs.md`). OtterCode will
-fill the file with project-specific context like build commands, code patterns,
-and conventions it discovered during initialization.
+如果偏好其他命名方式，或者希望将文件放在特定目录中，例如 `OTTERCODE.md` 或 `docs/LLMs.md`，可以使用这个选项。OtterCode 会将初始化时发现的构建命令、代码模式和项目约定等上下文写入该文件。
 
-### Attribution Settings
+### 署名设置
 
-By default, OtterCode adds attribution information to Git commits and pull requests
-it creates. You can customize this behavior with `option` commands:
+默认情况下，OtterCode 会为它创建的 Git 提交和拉取请求（PR）添加辅助创作署名。可以通过 `option` 命令调整此行为：
 
 ```bash
 option attribution-trailer-style co-authored-by
 option attribution-generated-with true
 ```
 
-- `trailer_style`: Controls the attribution trailer added to commit messages
-  (default: `assisted-by`)
-  - `assisted-by`: Adds `Assisted-by: OtterCode:[ModelID]` as specified in [the convention](https://docs.kernel.org/process/coding-assistants.html#attribution)
-  - `co-authored-by`: Adds `Co-Authored-By: OtterCode <ottercode@charm.land>`
-  - `none`: No attribution trailer
-- `generated_with`: When true (default), adds `💘 Generated with OtterCode` line to
-  commit messages and PR descriptions
+- `trailer_style`：控制提交说明末尾的署名格式，默认值为 `assisted-by`。
+  - `assisted-by`：按照[相关约定](https://docs.kernel.org/process/coding-assistants.html#attribution)添加 `Assisted-by: OtterCode:[ModelID]`。
+  - `co-authored-by`：添加 `Co-Authored-By: OtterCode <ottercode@charm.land>`。
+  - `none`：不添加署名。
+- `generated_with`：为真时（默认），在提交说明和 PR 描述中添加 `💘 Generated with OtterCode`。
 
-### Custom Providers
+### 自定义服务商
 
-OtterCode supports custom provider configurations for both OpenAI-compatible and
-Anthropic-compatible APIs.
+OtterCode 支持兼容 OpenAI 和 Anthropic API 的自定义服务商配置。
 
 > [!NOTE]
-> Note that we support two "types" for OpenAI. Make sure to choose the right one
-> to ensure the best experience!
+> OpenAI 相关配置支持两种不同的类型，请按实际服务选择：
 >
-> - `openai` should be used when proxying or routing requests through OpenAI.
-> - `openai-compat` should be used when using non-OpenAI providers that have OpenAI-compatible APIs.
+> - `openai`：用于通过代理或路由访问 OpenAI 的情况。
+> - `openai-compat`：用于其他提供 OpenAI 兼容 API 的服务商。
 
-#### OpenAI-Compatible APIs
+#### OpenAI 兼容 API
 
-Here’s an example configuration for Deepseek, which uses an OpenAI-compatible
-API. Don't forget to set `DEEPSEEK_API_KEY` in your environment.
+下面是使用 OpenAI 兼容 API 的 DeepSeek 配置示例。使用前，请在环境中设置 `DEEPSEEK_API_KEY`。
 
 ```bash
 provider add deepseek --type openai-compat \
@@ -614,9 +509,9 @@ model add deepseek/deepseek-chat \
   --price-cache-hit 0.07
 ```
 
-#### Anthropic-Compatible APIs
+#### Anthropic 兼容 API
 
-Custom Anthropic-compatible providers follow this format:
+自定义 Anthropic 兼容服务商的配置格式如下：
 
 ```bash
 provider add custom-anthropic \
@@ -639,25 +534,15 @@ model add custom-anthropic/claude-sonnet-4-20250514 \
 
 ### Amazon Bedrock
 
-OtterCode currently supports running Anthropic models through Bedrock, with caching disabled.
+OtterCode 目前支持通过 Bedrock 运行 Anthropic 模型，但未启用缓存。
 
-A Bedrock provider appears once OtterCode can find AWS credentials. You can
-authenticate in one of two ways:
+当 OtterCode 找到 AWS 凭据时，Bedrock 会出现在服务商列表中。可以通过以下两种方式完成身份验证：
 
-**API key.** Set `AWS_BEARER_TOKEN_BEDROCK` to a Bedrock API key. This is the
-simplest option and never expires mid-session.
+**API 密钥。** 将 `AWS_BEARER_TOKEN_BEDROCK` 设置为 Bedrock API 密钥。这是最简单的方式，且不会在会话进行到一半时过期。
 
-**AWS credential chain (SSO, profiles, access keys).** Configure AWS the usual
-way with `aws configure` or `aws configure sso`. OtterCode picks up whatever the
-AWS SDK credential chain resolves, including `AWS_PROFILE`, `AWS_ACCESS_KEY_ID`
-/ `AWS_SECRET_ACCESS_KEY`, or an SSO session. To select a specific profile,
-set `AWS_PROFILE` in your shell (`AWS_PROFILE=myprofile ottercode`) or in the
-top-level [`env`](#environment-variables) config.
+**AWS 凭据链（SSO、配置档、访问密钥）。** 使用 `aws configure` 或 `aws configure sso` 等标准方式配置 AWS。OtterCode 会使用 AWS SDK 凭据链解析出的凭据，包括 `AWS_PROFILE`、`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` 或 SSO 会话。若要选择特定配置档，可在 shell 中设置 `AWS_PROFILE`，例如 `AWS_PROFILE=myprofile ottercode`，也可以在顶层 [`env`](#环境变量) 配置中设置。
 
-If you authenticate via AWS SSO, your session expires periodically. Set
-`aws_auth_refresh` to a command that refreshes it. When Bedrock returns a
-credential error, OtterCode runs the command, then retries the request in place
-(no duplicate messages, no manual restart):
+如果通过 AWS SSO 验证身份，会话会定期过期。可以将 `aws_auth_refresh` 设置为刷新凭据的命令。当 Bedrock 返回凭据错误时，OtterCode 会运行该命令，然后直接重试请求，无需手动重启，也不会生成重复消息：
 
 ```json
 {
@@ -676,17 +561,17 @@ credential error, OtterCode runs the command, then retries the request in place
 }
 ```
 
-- `aws_auth_refresh` — shell command run when AWS credentials expire (e.g. `aws sso login`)
+- `aws_auth_refresh`：AWS 凭据过期时运行的 shell 命令，例如 `aws sso login`。
 
-### Vertex AI Platform
+### Vertex AI 平台
 
-Vertex AI will appear in the list of available providers when `VERTEXAI_PROJECT` and `VERTEXAI_LOCATION` are set. You will also need to be authenticated:
+设置 `VERTEXAI_PROJECT` 和 `VERTEXAI_LOCATION` 后，Vertex AI 会出现在可用服务商列表中。还需要完成身份验证：
 
 ```bash
 $ gcloud auth application-default login
 ```
 
-To add specific models to the configuration, configure as such:
+如果需要在配置中添加特定模型，可以使用以下方式：
 
 ```bash
 # ottercoderc — authentication still comes from gcloud and the VERTEXAI_* env vars.
@@ -704,12 +589,9 @@ model add vertexai/claude-sonnet-4@20250514 \
   --price-cache-hit 0.3
 ```
 
-### Local Models
+### 本地模型
 
-OtterCode can auto-discovers models from local providers. Add a custom provider
-with `type` set to `llamacpp`, `omlx`, `lmstudio`, `litellm`, or `ollama`
-and leave out the models list. OtterCode will populate the model list
-automatically.
+OtterCode 可以自动发现本地服务商提供的模型。添加自定义服务商时，将 `type` 设置为 `llamacpp`、`omlx`、`lmstudio`、`litellm` 或 `ollama`，并省略模型列表，程序就会自动填充可用模型。
 
 ```bash
 # Piece of cake.
@@ -719,7 +601,7 @@ provider add ollama \
   --base-url "http://localhost:11434/v1/"
 ```
 
-For llama.cpp (`llama-server`), point at the server's base URL:
+对于 llama.cpp（`llama-server`），请使用服务器的基础 URL：
 
 ```bash
 provider add llamacpp \
@@ -728,13 +610,11 @@ provider add llamacpp \
   --base-url "http://localhost:2222"
 ```
 
-#### Manual Model Configuration
+#### 手动配置模型
 
-You can still list models explicitly. User-defined models always take
-precedence over discovered ones, and any fields you set won't be overwritten
-by auto-discovery. Auto discovery will run if the model list is empty for any
-`openai-compat` provider or if you pass `"discover_models": true` it will merge
-the found models with your hand configured ones.
+仍然可以显式配置模型列表。用户定义的模型始终优先于自动发现的模型，手动设置的字段不会被自动发现结果覆盖。
+
+对于任何 `openai-compat` 服务商，当模型列表为空时会运行自动发现。设置 `"discover_models": true` 后，则会将发现的模型与手动配置的模型合并。
 
 ```bash
 # ottercoderc
@@ -750,15 +630,13 @@ model add ollama/qwen3:30b \
   --default-max-tokens 20000
 ```
 
-The `--discover-models true` flag merges discovered models with the one above;
-your explicit model fields win on conflicts.
+`--discover-models true` 会将自动发现的模型与上述模型合并；字段冲突时，优先使用手动配置的值。
 
-## Logging
+## 日志
 
-Sometimes you need to look at logs. Luckily, OtterCode logs all sorts of
-stuff. Logs are stored in `./.ottercode/logs/ottercode.log` relative to the project.
+需要排查问题时，可以查看日志。OtterCode 会记录多种运行信息，日志默认位于项目目录下的 `./.ottercode/logs/ottercode.log`。
 
-The CLI also contains some helper commands to make perusing recent logs easier:
+命令行提供了便于查看最近日志的辅助命令：
 
 ```bash
 # Print the last 1000 lines
@@ -771,8 +649,7 @@ ottercode logs --tail 500
 ottercode logs --follow
 ```
 
-Want more logging? Run `ottercode` with the `--debug` flag, or enable it in your
-`ottercoderc`:
+如果需要更详细的日志，可以使用 `--debug` 参数运行 `ottercode`，或者在 `ottercoderc` 中启用：
 
 ```bash
 # ottercoderc
@@ -780,42 +657,35 @@ option debug true
 option debug-lsp true
 ```
 
-## Provider Auto-Updates
+## 服务商自动更新
 
-By default, OtterCode automatically checks for the latest and greatest list of
-providers and models from [Catwalk](https://github.com/charmbracelet/catwalk),
-the open source OtterCode provider database. This means that when new providers and
-models are available, or when model metadata changes, OtterCode automatically
-updates your local configuration.
+默认情况下，OtterCode 会从开源服务商与模型目录 [Catwalk](https://github.com/charmbracelet/catwalk) 获取最新列表。当新增服务商或模型，或者模型元数据发生变化时，程序会自动更新本地配置。
 
-### Custom provider catalog
+### 自定义服务商目录
 
-You can also override [Catwalk](https://github.com/charmbracelet/catwalk) default URL (for testing, using a fork).
+可以覆盖 [Catwalk](https://github.com/charmbracelet/catwalk) 的默认 URL，用于测试或使用自己的派生目录服务。
 
-You can do so by setting `CATWALK_URL` enviromental variable. (e.g. `export CATWALK_URL=http://localhost:8000`)
+设置 `CATWALK_URL` 环境变量即可，例如 `export CATWALK_URL=http://localhost:8000`。
 
-### Disabling automatic provider updates
+### 禁用服务商自动更新
 
-For those with restricted internet access, or those who prefer to work in
-air-gapped environments, this might not be want you want, and this feature can
-be disabled.
+如果网络访问受到限制，或者需要在隔离网络环境中工作，可以禁用自动更新。
 
-To disable automatic provider updates in your `ottercoderc`:
+在 `ottercoderc` 中配置：
 
 ```bash
 option provider-auto-update false
 ```
 
-Or set the `OTTERCODE_DISABLE_PROVIDER_AUTO_UPDATE` environment variable:
+也可以设置 `OTTERCODE_DISABLE_PROVIDER_AUTO_UPDATE` 环境变量：
 
 ```bash
 export OTTERCODE_DISABLE_PROVIDER_AUTO_UPDATE=1
 ```
 
-### Manually updating providers
+### 手动更新服务商
 
-Manually updating providers is possible with the `ottercode update-providers`
-command:
+使用 `ottercode update-providers` 命令可以手动更新服务商列表：
 
 ```bash
 # Update providers remotely from Catwalk.
@@ -834,43 +704,37 @@ ottercode update-providers embedded
 ottercode update-providers --help
 ```
 
-## Metrics
+## 使用统计
 
-OtterCode records pseudonymous usage metrics (tied to a device-specific hash),
-which maintainers rely on to inform development and support priorities. The
-metrics include solely usage metadata; prompts and responses are NEVER
-collected.
+OtterCode 会记录与设备特定哈希关联的化名化使用统计，以帮助维护者确定开发和支持工作的优先级。统计只包含使用元数据，**不会收集提示词或模型回复**。
 
-Details on exactly what’s collected are in the source code ([here](https://github.com/ZoeySigel/ottercode/tree/main/internal/event)
-and [here](https://github.com/ZoeySigel/ottercode/blob/main/internal/llm/agent/event.go)).
+具体收集内容可在源码中查看：[事件模块](https://github.com/ZoeySigel/ottercode/tree/main/internal/event)和[智能体事件代码](https://github.com/ZoeySigel/ottercode/blob/main/internal/llm/agent/event.go)。
 
-You can opt out of metrics collection at any time by setting the environment
-variable by setting the following in your environment:
+可以随时通过以下环境变量关闭统计收集：
 
 ```bash
 export OTTERCODE_DISABLE_METRICS=1
 ```
 
-OtterCode also respects the [`DO_NOT_TRACK`](https://donottrack.sh/) convention
-which can be enabled via `export DO_NOT_TRACK=1`.
+OtterCode 也遵循 [`DO_NOT_TRACK`](https://donottrack.sh/) 约定，可以通过 `export DO_NOT_TRACK=1` 启用。
 
-## Q&A
+## 常见问题
 
-### Why is clipboard copy and paste not working?
+### 为什么剪贴板复制和粘贴无法使用？
 
-Installing an extra tool might be needed on Unix-like environments.
+在类 Unix 环境中，可能需要安装额外工具。
 
-| Environment         | Tool                     |
-| ------------------- | ------------------------ |
-| Windows             | Native support           |
-| macOS               | Native support           |
-| Linux/BSD + Wayland | `wl-copy` and `wl-paste` |
-| Linux/BSD + X11     | `xclip` or `xsel`        |
+| 环境                | 工具                    |
+| ------------------- | ----------------------- |
+| Windows             | 原生支持                |
+| macOS               | 原生支持                |
+| Linux/BSD + Wayland | `wl-copy` 和 `wl-paste` |
+| Linux/BSD + X11     | `xclip` 或 `xsel`       |
 
-## Contributing
+## 参与贡献
 
-See the [contributing guide](https://github.com/ZoeySigel/ottercode?tab=contributing-ov-file#contributing).
+请参阅[贡献指南](https://github.com/ZoeySigel/ottercode?tab=contributing-ov-file#contributing)。
 
-## Origin and license
+## 项目来源与许可证
 
-Derived from [Crush](https://github.com/charmbracelet/crush), by Charmbracelet. Original copyright and [FSL-1.1-MIT license](LICENSE.md) are preserved. Third-party services and dependencies retain their original names and endpoints.
+本项目基于 Charmbracelet 的 [Crush](https://github.com/charmbracelet/crush) 修改，保留原作者版权和 [FSL-1.1-MIT 许可证](LICENSE.md)。第三方服务和依赖保留原有名称与服务地址。
