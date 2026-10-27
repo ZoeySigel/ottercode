@@ -1,0 +1,16 @@
+{
+  "model": "replace-with-your-tool-capable-model",
+  "baseUrl": "https://api.openai.com/v1",
+  "approval": "ask",
+  "maxTokens": 4096,
+  "contextWindow": 32768,
+  "maxCalls": 40,
+  "commandTimeoutMs": 120000,
+  "requestTimeoutMs": 120000,
+  "tokenizer": "o200k_base",
+  "compactThreshold": 0.7,
+  "reportUsage": true,
+  "hooks": [],
+  "pricing": {},
+  "subAgents": { "maxDepth": 1, "maxCalls": 8, "maxChildren": 4 }
+}
