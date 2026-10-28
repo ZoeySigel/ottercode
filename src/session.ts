@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { createTwoFilesPatch } from 'diff';
-import type { ContextUsage, HookDecision, Message, Session, ToolCall, ToolResult, UsageRecord } from './types.js';
+import type { ContextUsage, HookDecision, Message, ReActState, Session, ToolCall, ToolResult, UsageRecord } from './types.js';
 import { atomicWrite } from './utils.js';
 import { addUsage, emptyUsage } from './usage.js';
 
@@ -16,6 +16,7 @@ type SessionEvent =
   | { type: 'tool_end'; id: string; result: ToolResult };
 // Metadata is journaled with the same crash recovery and idempotency as messages.
 type MetadataEvent =
+  | { type: 'react_step'; state: ReActState }
   | { type: 'usage'; record: UsageRecord }
   | { type: 'context_usage'; usage: ContextUsage }
   | { type: 'hook'; callId: string; decision: HookDecision }
@@ -29,6 +30,7 @@ export function projectKey(root: string): string {
 
 function apply(session: Session, entry: JournalEntry): void {
   switch (entry.type) {
+    case 'react_step': session.react = entry.state; break;
     case 'message': session.messages.push(entry.message); break;
     case 'replace_messages': session.messages = entry.messages; break;
     case 'change': if (!Object.hasOwn(session.changes, entry.path)) Object.defineProperty(session.changes, entry.path, { value: { before: entry.before }, enumerable: true, writable: true, configurable: true }); break;
@@ -178,6 +180,8 @@ export class SessionStore {
     const repaired = repairToolPairs(session.messages);
     if (JSON.stringify(repaired) !== JSON.stringify(session.messages)) await this.commit(session, { type: 'replace_messages', messages: repaired });
     else await atomicWrite(path.join(this.directory(id), 'snapshot.json'), JSON.stringify(session));
+    // A phase records progress only; recovery never resumes an interrupted action.
+    if (session.react && session.react.phase !== 'finish') await this.commit(session, { type: 'react_step', state: { runId: session.react.runId, step: session.react.step, phase: 'finish', reason: 'cancelled' } });
     // Reconcile usage if a crash happened after the child charge but before its parent rollup.
     for (const childInfo of session.children ?? []) {
       const child = await this.load(childInfo.id, visited);

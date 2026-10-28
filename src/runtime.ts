@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Agent } from './agent.js';
 import { sessionDiff, SessionStore } from './session.js';
-import type { AgentEvent, ApprovalRequest, Config, EndReason, ModelProvider, Session, ToolCall, ToolResult, UsageTotals } from './types.js';
+import type { AgentEvent, ApprovalRequest, Config, EndReason, ModelProvider, ReActState, Session, ToolCall, ToolResult, UsageTotals } from './types.js';
 import { emptyUsage } from './usage.js';
 import { limitOutput } from './utils.js';
 
@@ -10,7 +10,7 @@ export type EventEnvelope = { kind: 'event'; id: string; sessionId: string; task
 export type WorkspaceSnapshot = {
   epoch: string; revision: number; root: string; sessionId: string; model: string; approval: Config['approval']; busy: boolean;
   messages: Session['messages']; changedFiles: string[]; usage: UsageTotals; children: Session['children'];
-  task?: { id: string; input: string; status: 'running' | 'finished'; reason?: EndReason; calls?: number; text: string };
+  task?: { id: string; input: string; status: 'running' | 'finished'; reason?: EndReason; calls?: number; text: string; react?: ReActState };
   tools: { call: ToolCall; result?: ToolResult; output: string }[];
   approvals: { id: string; request: ApprovalRequest }[];
 };
@@ -64,7 +64,8 @@ export class TaskRuntime {
   };
   approve(id: string, approved: boolean): boolean { const entry = this.pending.get(id); if (!entry) return false; entry.resolve(approved); return true; }
   private consume(event: AgentEvent): void {
-    if (event.type === 'text' && this.task) this.task.text += event.delta;
+    if (event.type === 'react_step' && this.task) this.task.react = event.state;
+    else if (event.type === 'text' && this.task) this.task.text += event.delta;
     else if (event.type === 'tool_start') { if (this.task) this.task.text = ''; this.toolStates.set(event.call.id, { call: event.call, output: '' }); }
     else if (event.type === 'tool_output') { const state = this.toolStates.get(event.id); if (state) state.output = limitOutput(state.output + event.text, 20, 8192).text; }
     else if (event.type === 'tool_end') { const state = this.toolStates.get(event.call.id); if (state) { state.call = event.call; state.result = event.result; } }

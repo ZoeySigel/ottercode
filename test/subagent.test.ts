@@ -41,6 +41,8 @@ describe('delegated tasks and cost accounting', () => {
     expect(f.session.usage).toMatchObject({ calls: 4, inputTokens: 1000, outputTokens: 100, costUsd: 0.0012, unpricedCalls: 0, estimatedCalls: 0 });
     const childId = f.session.children![0]!.id;
     const child = await f.store.load(childId); expect(child.parentSessionId).toBe(f.session.id);
+    expect(child.react).toMatchObject({ phase: 'finish', step: 2, reason: 'completed' });
+    expect(child.react!.runId).not.toBe(f.session.react!.runId);
     expect(child.messages.some(message => message.content.includes('CHILD_ONLY_INTERMEDIATE'))).toBe(true);
     expect(JSON.stringify(provider.requests[3]?.messages)).not.toContain('CHILD_ONLY_INTERMEDIATE');
     expect(JSON.stringify(provider.requests[3]?.messages)).toContain('简洁的子任务结论');

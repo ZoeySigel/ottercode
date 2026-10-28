@@ -2,6 +2,8 @@
 
 一个在本地项目中工作的终端编程 Agent。输入任务后，它能搜索代码、读取和修改文件、请求执行命令，并根据实际结果继续工作。
 
+采用显式 **ReAct（Reason → Act → Observe）** 循环：模型根据已有证据决定行动，工具通过 Hook 与审批后执行，实际结果回填后再继续决策。每轮阶段实时显示在终端，通过 SSE 同步并写入会话日志。实现、协议映射与边界见 [ReAct 说明](docs/react.md)。
+
 支持工具调用前 Hook、工作区 SSE 状态流与断线重连、按 Token 窗口自动压缩，以及使用独立会话的子 Agent。配置、接口和简历亮点对应的实现见 [功能与实现说明](docs/advanced-features.md)。
 
 ottercode 使用 TypeScript 和 Node.js 22+ 独立实现，借鉴 [pi-from-scratch](https://github.com/SaladDay/pi-from-scratch) 的 Agent 循环与事件流设计。核心逻辑、模型协议、工具、会话与终端界面分别组织，便于阅读和扩展。

@@ -42,7 +42,15 @@ export interface Tool extends ToolDefinition {
   execute(args: Record<string, unknown>, context: ToolContext): Promise<ToolResult>;
 }
 export type EndReason = 'completed' | 'cancelled' | 'error' | 'budget' | 'truncated' | 'terminated';
+/** Execution phases, not the model's private chain of thought. */
+export type ReActState = { runId: string; step: number } & (
+  | { phase: 'reason' }
+  | { phase: 'action'; toolCallId: string; toolName: string }
+  | { phase: 'observation'; toolCallId: string; toolName: string; status: ToolResult['status'] }
+  | { phase: 'finish'; reason: EndReason }
+);
 export type AgentEvent =
+  | { type: 'react_step'; state: ReActState }
   | { type: 'text'; delta: string }
   | { type: 'tool_start'; call: ToolCall }
   | { type: 'tool_output'; id: string; text: string }
@@ -67,6 +75,7 @@ export type Session = {
   usageRecords?: UsageRecord[];
   usage?: UsageTotals;
   contextUsage?: ContextUsage;
+  react?: ReActState;
 };
 export type Config = {
   root: string; home: string; apiKey: string; baseUrl: string; model: string;

@@ -124,6 +124,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
 
 function printEvent(event: AgentEvent): void {
   if (event.type === 'text') process.stdout.write(safeText(event.delta));
+  else if (event.type === 'react_step') process.stderr.write(`[react:${event.state.step}] ${event.state.phase}${event.state.phase === 'finish' ? ` (${event.state.reason})` : ''}\n`);
   else if (event.type === 'tool_start') process.stderr.write(`\n[tool] ${safeText(event.call.name)}\n`);
   else if (event.type === 'tool_end') process.stderr.write(`[${event.result.status}] ${safeText(event.result.content)}${event.result.outputPath ? `\n完整日志：${event.result.outputPath}` : ''}\n`);
   else if (event.type === 'error') process.stderr.write(`\n错误：${safeText(event.message)}\n`);

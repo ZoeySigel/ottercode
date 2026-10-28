@@ -9,6 +9,7 @@ import { BudgetExceeded, CallBudget, TokenCounter } from './usage.js';
 import { accountedStream } from './accounting.js';
 import { compactionCut, summarizeHistory } from './context.js';
 import { delegateTool } from './tools/delegate.js';
+import { ReActLoop } from './react.js';
 export { compactionCut } from './context.js';
 
 export type AgentOptions = { hooks?: Hook[]; depth?: number; ancestors?: Session[]; budget?: CallBudget; readOnly?: boolean };
@@ -63,6 +64,10 @@ export class Agent {
     const budget = new CallBudget(this.config.maxCalls, this.options.budget);
     const initialCalls = budget.used;
     let end: EndReason = 'error';
+    const react = new ReActLoop(async state => {
+      await this.store.commit(session, { type: 'react_step', state });
+      emit({ type: 'react_step', state });
+    });
     try {
       signal.throwIfAborted();
       const shell = await resolveShell(this.config.shell);
@@ -83,6 +88,7 @@ export class Agent {
           if (budget.used >= budget.limit || budget.used - initialCalls >= this.config.maxCalls) break;
         }
         if (this.counter.prompt(request, session.contextUsage) + this.config.maxTokens > this.config.contextWindow) throw new Error('上下文超出配置容量；请 /new 开始新会话、精简输入或调整 contextWindow');
+        await react.reason();
         let text = '';
         const toolCalls: ToolCall[] = [];
         let finish: 'stop' | 'tool_calls' | 'length' | undefined;
@@ -107,6 +113,7 @@ export class Agent {
         if (!toolCalls.length) { end = 'completed'; return; }
         for (const original of toolCalls) {
           let call = original;
+          await react.act(call);
           emit({ type: 'tool_start', call });
           await this.store.commit(session, { type: 'tool_start', call });
           let result: ToolResult;
@@ -120,37 +127,36 @@ export class Agent {
               if (decision.action === 'terminate') budget.terminatedReason = `Hook 终止任务：${decision.outcomes.map(outcome => outcome.result.reason).filter(Boolean).join('; ')}`;
               if (decision.action !== 'allow') {
                 result = { status: 'denied', content: budget.terminatedReason ?? `Hook 拒绝：${decision.outcomes.map(outcome => outcome.result.reason).filter(Boolean).join('; ')}` };
-                await this.store.commit(session, { type: 'tool_end', id: call.id, result });
-                await this.store.commit(session, { type: 'message', message: { role: 'tool', toolCallId: call.id, content: JSON.stringify(result) } });
-                emit({ type: 'tool_end', call, result }); continue;
-              }
-              call = { ...call, args: decision.args };
-              if (!entry.validate(call.args)) throw new Error(`Hook 修改后的参数无效：${JSON.stringify(entry.validate.errors)}`);
-              const args = call.args as Record<string, unknown>;
-              const notices = await instructions.discover((args.path as string | undefined) ?? (args.cwd as string | undefined) ?? '.');
-              if (notices.length && ['write_file', 'edit_file', 'run_command'].includes(call.name)) {
-                result = { status: 'failure', content: `发现新的项目指令，本次尚未执行。请阅读后重新决定操作：\n${notices.join('\n')}` };
               } else {
-                const context: ToolContext = {
-                  root: this.config.root, outputDir: this.store.outputDirectory(session), signal, shell,
-                  approval: decision.requireApproval ? 'ask' : this.config.approval, commandTimeoutMs: this.config.commandTimeoutMs,
-                  authorize: async (request, abortSignal) => { const scoped = { ...request, sessionId: session.id }; emit({ type: 'approval_request', request: scoped }); return this.authorize(scoped, abortSignal); },
-                  emit: output => emit({ type: 'tool_output', id: call.id, text: output }),
-                  recordChange: async (relative, before) => { for (const target of [...(this.options.ancestors ?? []), session]) if (!Object.hasOwn(target.changes, relative)) await this.store.commit(target, { type: 'change', path: relative, before }); },
-                  captureCommandBaseline: async () => { for (const target of [...(this.options.ancestors ?? []), session]) await this.store.captureCommandBaseline(target, signal); },
-                  delegate: (task, mode) => this.delegate(task, mode, session, signal, budget, emit),
-                };
-                const approved = !decision.requireApproval || call.name === 'run_command' || await context.authorize({ command: JSON.stringify(call), cwd: this.config.root, shell, kind: 'tool', toolCall: call }, signal);
-                signal.throwIfAborted();
-                result = approved ? await entry.tool.execute(args, context) : { status: 'denied', content: 'Hook 要求的工具审批未获批准，未执行。' };
-                if (JSON.stringify(original.args) !== JSON.stringify(call.args)) result = { ...result, content: `Hook 实际执行参数：${JSON.stringify(call.args)}\n${result.content}` };
-                if (notices.length) result = { ...result, content: `${result.content}\n\n${notices.join('\n')}` };
+                call = { ...call, args: decision.args };
+                if (!entry.validate(call.args)) throw new Error(`Hook 修改后的参数无效：${JSON.stringify(entry.validate.errors)}`);
+                const args = call.args as Record<string, unknown>;
+                const notices = await instructions.discover((args.path as string | undefined) ?? (args.cwd as string | undefined) ?? '.');
+                if (notices.length && ['write_file', 'edit_file', 'run_command'].includes(call.name)) {
+                  result = { status: 'failure', content: `发现新的项目指令，本次尚未执行。请阅读后重新决定操作：\n${notices.join('\n')}` };
+                } else {
+                  const context: ToolContext = {
+                    root: this.config.root, outputDir: this.store.outputDirectory(session), signal, shell,
+                    approval: decision.requireApproval ? 'ask' : this.config.approval, commandTimeoutMs: this.config.commandTimeoutMs,
+                    authorize: async (request, abortSignal) => { const scoped = { ...request, sessionId: session.id }; emit({ type: 'approval_request', request: scoped }); return this.authorize(scoped, abortSignal); },
+                    emit: output => emit({ type: 'tool_output', id: call.id, text: output }),
+                    recordChange: async (relative, before) => { for (const target of [...(this.options.ancestors ?? []), session]) if (!Object.hasOwn(target.changes, relative)) await this.store.commit(target, { type: 'change', path: relative, before }); },
+                    captureCommandBaseline: async () => { for (const target of [...(this.options.ancestors ?? []), session]) await this.store.captureCommandBaseline(target, signal); },
+                    delegate: (task, mode) => this.delegate(task, mode, session, signal, budget, emit),
+                  };
+                  const approved = !decision.requireApproval || call.name === 'run_command' || await context.authorize({ command: JSON.stringify(call), cwd: this.config.root, shell, kind: 'tool', toolCall: call }, signal);
+                  signal.throwIfAborted();
+                  result = approved ? await entry.tool.execute(args, context) : { status: 'denied', content: 'Hook 要求的工具审批未获批准，未执行。' };
+                  if (JSON.stringify(original.args) !== JSON.stringify(call.args)) result = { ...result, content: `Hook 实际执行参数：${JSON.stringify(call.args)}\n${result.content}` };
+                  if (notices.length) result = { ...result, content: `${result.content}\n\n${notices.join('\n')}` };
+                }
               }
             } catch (error) { result = { status: signal.aborted ? 'cancelled' : 'failure', content: errorMessage(error) }; }
           }
           await this.store.commit(session, { type: 'tool_end', id: call.id, result });
           await this.store.commit(session, { type: 'message', message: { role: 'tool', toolCallId: call.id, content: JSON.stringify(result) } });
           emit({ type: 'tool_end', call, result });
+          await react.observe(call, result);
         }
         if (budget.terminatedReason) { end = 'terminated'; return; }
       }
@@ -159,7 +165,13 @@ export class Agent {
       if (signal.aborted) end = 'cancelled';
       else if (error instanceof BudgetExceeded) end = 'budget';
       else { end = 'error'; emit({ type: 'error', message: errorMessage(error).replaceAll(this.config.apiKey, '[REDACTED]') }); }
-    } finally { calls = budget.used - initialCalls; emit({ type: 'task_end', reason: signal.aborted ? 'cancelled' : end, calls }); }
+    } finally {
+      calls = budget.used - initialCalls;
+      end = signal.aborted ? 'cancelled' : end;
+      try { await react.finish(end); }
+      catch (error) { end = 'error'; emit({ type: 'error', message: errorMessage(error).replaceAll(this.config.apiKey, '[REDACTED]') }); }
+      emit({ type: 'task_end', reason: end, calls });
+    }
   }
 
   private async delegate(task: string, mode: 'read_only' | 'workspace_write', parent: Session, signal: AbortSignal, budget: CallBudget, emit: (event: AgentEvent) => void): Promise<ToolResult> {

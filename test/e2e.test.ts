@@ -94,6 +94,9 @@ describe('CLI with a real local model server', () => {
       const restored = await f.store.load(active.id);
       expect(restored.changes['math.cjs']?.before).toContain('a - b');
       expect(restored.messages.filter(m => m.role === 'tool')).toHaveLength(4);
+      expect(restored.react).toMatchObject({ phase: 'finish', reason: 'completed', step: 5 });
+      expect(result.stderr).toContain('[react:1] reason');
+      expect(result.stderr).toContain('[react:5] finish (completed)');
       round = 100;
       const resumed = await run(['--cwd', f.root, '-p', '继续汇报', '--resume', active.id], env);
       // Explicitly release our inspection lock before allowing another CLI writer.

@@ -38,6 +38,7 @@ describe('workspace SSE transport', () => {
         } else if (item.kind === 'event' && item.event.type === 'approval_pending' && !disconnected) {
           disconnected = true; server.disconnect();
         } else if (item.kind === 'snapshot' && disconnected && item.snapshot.approvals.length) {
+          expect(item.snapshot.task?.react).toMatchObject({ phase: 'action', toolCallId: 'cmd' });
           restored = true; const approval = item.snapshot.approvals[0]!;
           expect(await client.request('/approvals/' + approval.id, { approved: false })).toEqual({ accepted: true });
           await expect(client.request('/approvals/' + approval.id, { approved: true })).rejects.toThrow('已结束');

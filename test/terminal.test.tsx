@@ -8,6 +8,11 @@ import { TerminalApp, TerminalController, markdownText } from '../src/terminal.j
 import { safeText } from '../src/utils.js';
 
 describe('terminal interaction', () => {
+  it('displays the ReAct decision phase without inventing model reasoning', () => {
+    const controller = new TerminalController(); controller.setBusy(true);
+    controller.event({ type: 'react_step', state: { runId: 'run', step: 2, phase: 'reason' } });
+    expect(safeText(renderToString(<TerminalApp controller={controller} />))).toContain('ReAct #2 · 评估下一步');
+  });
   it('edits Unicode input, inserts Alt+Enter and keeps pasted multiline text intact', () => {
     let draft = insertDraft({ text: '', cursor: 0 }, '中文🦦');
     draft = editDraft(draft, '', { return: true, meta: true });

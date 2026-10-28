@@ -2,14 +2,15 @@ import React, { useState, useSyncExternalStore } from 'react';
 import { Box, Static, Text, render, useInput, usePaste, useWindowSize } from 'ink';
 import { Marked } from 'marked';
 import { markedTerminal } from 'marked-terminal';
-import type { AgentEvent, ApprovalRequest, UsageTotals } from './types.js';
+import type { AgentEvent, ApprovalRequest, ReActState, UsageTotals } from './types.js';
 import { safeText, limitOutput } from './utils.js';
 import { editDraft, insertDraft, type Draft } from './terminal-input.js';
 import type { WorkspaceSnapshot } from './runtime.js';
 
 type Item = { id: number; text: string; markdown: boolean; color?: string };
-type State = { items: Item[]; text: string; tool: string; output: string; busy: boolean; label: string; approval?: ApprovalRequest };
+type State = { items: Item[]; text: string; tool: string; output: string; busy: boolean; label: string; approval?: ApprovalRequest; react?: ReActState };
 const reasonLabels = { completed: '完成', cancelled: '已取消', error: '发生错误', budget: '已达到模型调用预算', truncated: '模型输出被截断，未执行本轮工具', terminated: 'Hook 已终止任务' };
+const phaseLabels = { reason: '评估下一步', action: '执行行动', observation: '已收到观察', finish: '结束' };
 
 export class TerminalController {
   private state: State = { items: [], text: '', tool: '', output: '', busy: false, label: '' };
@@ -34,7 +35,7 @@ export class TerminalController {
   }
   synchronize(snapshot: WorkspaceSnapshot, missingCompletion = false): void {
     const tool = snapshot.tools.findLast(item => !item.result);
-    this.update({ busy: snapshot.busy, text: snapshot.task?.status === 'running' ? safeText(snapshot.task.text) : '', tool: tool?.call.name ?? '', output: tool?.output ?? '' });
+    this.update({ busy: snapshot.busy, text: snapshot.task?.status === 'running' ? safeText(snapshot.task.text) : '', tool: tool?.call.name ?? '', output: tool?.output ?? '', react: snapshot.task?.react });
     if (missingCompletion && snapshot.task?.status === 'finished') {
       if (snapshot.task.text) this.print(snapshot.task.text, true);
       this.print(`${snapshot.task.reason ? reasonLabels[snapshot.task.reason] : '任务已结束'} · 已从工作区恢复结果`, false, 'gray');
@@ -49,7 +50,8 @@ export class TerminalController {
   }
   event(event: AgentEvent): void {
     switch (event.type) {
-      case 'task_start': this.print(`❯ ${event.input}`, false, 'cyan'); this.update({ busy: true, text: '', tool: '', output: '' }); break;
+      case 'task_start': this.print(`❯ ${event.input}`, false, 'cyan'); this.update({ busy: true, text: '', tool: '', output: '', react: undefined }); break;
+      case 'react_step': this.update({ react: event.state }); break;
       case 'usage': if (event.sessionId === this.currentSessionId) this.setUsage(event.totals); break;
       case 'hook_result': if (event.decision.outcomes.length) this.print(`Hook: ${event.decision.action}${event.decision.requireApproval ? ' · 需要审批' : ''}`, false, event.decision.action === 'allow' ? 'gray' : 'yellow'); break;
       case 'subagent_start': this.print(`子任务 ${event.sessionId} · ${event.mode}\n${event.task}`, false, 'cyan'); break;
@@ -148,7 +150,7 @@ export function TerminalApp({ controller }: { controller: TerminalController }) 
       {state.approval ? <Box borderStyle="round" borderColor="yellow" flexDirection="column" paddingX={1}>
         <Text color="yellow">{state.approval.kind === 'tool' ? '是否执行以上工具调用？' : '是否执行以上命令？'} [y/N]</Text>
         <Text dimColor>命令已完整输出到上方，可滚动查看 · Ctrl+C 取消任务</Text>
-      </Box> : state.busy ? <Text dimColor>处理中 · Ctrl+C 取消</Text> : <Box><Text color="cyan">❯ </Text><Text>{before}<Text inverse>{cursor}</Text>{after}</Text></Box>}
+      </Box> : state.busy ? <Text dimColor>{state.react ? `ReAct #${state.react.step} · ${phaseLabels[state.react.phase]}` : '处理中'} · Ctrl+C 取消</Text> : <Box><Text color="cyan">❯ </Text><Text>{before}<Text inverse>{cursor}</Text>{after}</Text></Box>}
       <Text dimColor>{state.label}</Text>
       {!state.busy && <Text dimColor>Enter 发送 · Alt+Enter 换行 · /help 帮助</Text>}
     </Box>
